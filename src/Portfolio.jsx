@@ -1,8 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Github, Mail, Linkedin, ArrowUpRight } from "lucide-react";
+import { Github, Mail, Linkedin, ArrowUpRight, Download } from "lucide-react";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+html, body, #root {
+  margin: 0; padding: 0;
+  background: #0A0D16;
+}
+html { scrollbar-color: rgba(255,255,255,0.18) #0A0D16; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0A0D16; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
 
 .gx-root {
   --bg: #0A0D16;
@@ -187,8 +197,12 @@ const CSS = `
 .gx-filter-chip.active { background: linear-gradient(100deg, var(--blue), var(--violet)); color: #fff; border-color: transparent; font-weight: 600; }
 .gx-filter-chip:not(.active):hover { border-color: var(--glass-border-hover); color: var(--text); }
 
-.gx-project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-.gx-project-card { padding: 24px; display: flex; flex-direction: column; }
+.gx-project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: stretch; }
+.gx-project-grid > .gx-reveal { height: 100%; }
+.gx-project-card {
+  padding: 24px; display: flex; flex-direction: column;
+  height: 100%; min-height: 300px; cursor: pointer; text-align: left; width: 100%;
+}
 .gx-project-card:hover { transform: translateY(-5px); box-shadow: 0 16px 50px rgba(91,140,255,0.14); }
 .gx-project-head {
   display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
@@ -209,6 +223,41 @@ const CSS = `
   border-top: 1px solid var(--glass-border);
   background-image: linear-gradient(100deg, var(--blue), var(--violet));
   -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* ---------- Project detail modal ---------- */
+.gx-modal-backdrop {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(5,7,12,0.72); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  animation: gx-fade-in 0.2s ease;
+}
+@keyframes gx-fade-in { from { opacity: 0; } to { opacity: 1; } }
+.gx-modal {
+  max-width: 580px; width: 100%; max-height: 85vh; overflow-y: auto;
+  padding: 34px; position: relative;
+  animation: gx-modal-in 0.28s cubic-bezier(.16,1,.3,1);
+}
+@keyframes gx-modal-in { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
+.gx-modal-close {
+  position: absolute; top: 18px; right: 18px;
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--text); transition: all 0.2s ease;
+}
+.gx-modal-close:hover { border-color: var(--blue); box-shadow: 0 0 16px rgba(91,140,255,0.35); }
+.gx-modal-title { font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; margin: 16px 24px 16px 0; }
+.gx-modal-desc { color: var(--text-dim); font-size: 0.96rem; margin-bottom: 22px; }
+.gx-modal-tech-label {
+  font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 10px;
+}
+.gx-modal-tech-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.gx-modal-result {
+  padding: 16px 18px; border-radius: 12px;
+  background: rgba(91,140,255,0.08); border: 1px solid rgba(91,140,255,0.22);
+  font-weight: 700; font-size: 0.95rem;
 }
 
 /* ---------- Timeline ---------- */
@@ -338,36 +387,41 @@ const PROJECTS = [
   {
     title: "BT Envanter Yönetim Sistemi (ITAM)",
     categories: ["Yönetim Sistemi"],
-    desc: "Yüzlerce cihazın zimmet, bakım, arıza ve hurda süreçlerini tek platformda topladım; PDF zimmet formu üretimi, yönlendirmeli destek talep sistemi, Kanban iş takip panosu ve personel portalı içeriyor.",
-    tech: "Node.js / Express · React · PostgreSQL",
+    desc: "Yüzlerce cihazın zimmet, bakım, arıza ve hurda süreçlerini tek platformda topladım.",
+    details: "Yüzlerce cihazın zimmet, bakım, arıza ve hurda süreçlerini tek platformda topladım; PDF zimmet formu üretimi, yönlendirmeli destek talep sistemi (uygun ekibe otomatik atama), Kanban tabanlı iş takip panosu ve her çalışanın kendi zimmetini görebildiği bir personel portalı içeriyor. Daha önce Excel üzerinden manuel yürütülen tüm süreç artık uçtan uca dijital.",
+    tech: ["Node.js / Express", "React", "PostgreSQL", "PM2"],
     result: "Zimmet süreci: 30 dk → 2 dk",
   },
   {
     title: "Yönetim Paneli (Dashboard)",
     categories: ["ERP Entegrasyonu", "Yönetim Sistemi"],
-    desc: "ERP verisini gerçek zamanlı okuyarak stok, üretim, satış ve satın alma süreçlerini tek ekranda izlenebilir hale getirdim; departman bazlı yetkilendirme ve grafik/tablo raporlama içeriyor.",
-    tech: "Node.js · React · SAP MSSQL (read-only)",
+    desc: "ERP verisini gerçek zamanlı okuyarak stok, üretim ve satış süreçlerini tek ekranda izlenebilir hale getirdim.",
+    details: "ERP verisini gerçek zamanlı okuyarak stok, üretim, satış ve satın alma süreçlerini tek ekranda izlenebilir hale getirdim. Departman bazlı yetkilendirme ve grafik/tablo raporlama içeriyor; yöneticiler ERP arayüzüne hiç girmeden anlık rapor alabiliyor.",
+    tech: ["Node.js", "React", "SAP MSSQL (read-only)"],
     result: "Rapor hazırlama yükü BT'den kalktı",
   },
   {
     title: "Etiket Yönetim Uygulaması",
     categories: ["ERP Entegrasyonu"],
     desc: "ERP verisinden otomatik dolan şablonlarla çoklu yazıcı filosunu tek arayüzden yönetilebilir hale getirdim.",
-    tech: "ASP.NET Core (.NET) · React · MSSQL",
+    details: "ERP verisinden otomatik dolan şablonlarla çoklu yazıcı filosunu tek arayüzden yönetilebilir hale getirdim. Rol bazlı yetkilendirme, parti/sipariş verisinin otomatik doldurulması ve farklı etiket formatları için çoklu şablon desteği içeriyor. Manuel veri girişi ortadan kalktı.",
+    tech: ["ASP.NET Core (.NET)", "React", "MSSQL"],
     result: "Etiket hata oranı: %80 azaldı",
   },
   {
     title: "Stok Sayım Uygulaması",
     categories: ["ERP Entegrasyonu", "Yönetim Sistemi"],
-    desc: "Barkod okutmalı sayım sistemi; anlık ürün doğrulama, rol bazlı yetkilendirme, Excel/e-posta raporlama ve bot bildirimleri içeriyor.",
-    tech: "Node.js · React/Vite · PostgreSQL · SAP MSSQL",
+    desc: "Barkod okutmalı sayım sistemi; anlık ürün doğrulama ve rol bazlı yetkilendirme içeriyor.",
+    details: "Barkod okutmalı dönemsel sayım sistemi; ERP üzerinden anlık ürün doğrulama, 3 seviyeli rol bazlı yetkilendirme, çok sayfalı Excel/e-posta raporlama ve bot üzerinden bildirim akışı içeriyor. Ekiple birlikte yürütülen dönem sayımları artık çok daha kısa sürede tamamlanıyor.",
+    tech: ["Node.js", "React / Vite", "PostgreSQL", "SAP MSSQL"],
     result: "Sayım süresi: 12 saat → 6 saat",
   },
   {
     title: "IoT Sıcaklık & Nem İzleme Sistemi",
     categories: ["IoT"],
-    desc: "Çoklu lokasyonda 7/24 ortam izleme altyapısı kurdum; eşik aşımında anlık uyarı ve otomatik periyodik raporlama içeriyor.",
-    tech: "ESP8266 · Node.js · PostgreSQL · Telegram Bot API",
+    desc: "Çoklu lokasyonda 7/24 ortam izleme altyapısı kurdum.",
+    details: "Çoklu lokasyonda 7/24 ortam izleme altyapısı kurdum. Eşik aşımında anlık bot bildirimi, haftalık/aylık otomatik e-posta raporları ve lokasyon bazlı yetkilendirme içeriyor; sıcaklık/nem kaynaklı riskler oluşmadan tespit ediliyor.",
+    tech: ["ESP8266", "Node.js", "PostgreSQL", "Telegram Bot API"],
     result: "Riskler oluşmadan tespit ediliyor",
   },
 ];
@@ -394,8 +448,37 @@ const EXPERIENCE = [
   },
 ];
 
+function ProjectModal({ project, onClose }) {
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    function onKey(e) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="gx-modal-backdrop" onClick={onClose}>
+      <div className="gx-glass gx-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="gx-modal-close" onClick={onClose} aria-label="Kapat">✕</button>
+        <span className="gx-project-badge">{project.categories[0]}</span>
+        <h3 className="gx-modal-title">{project.title}</h3>
+        <p className="gx-modal-desc">{project.details}</p>
+        <div className="gx-modal-tech-label">Kullanılan Teknolojiler</div>
+        <div className="gx-modal-tech-grid">
+          {project.tech.map((t) => <span className="gx-tag" key={t}>{t}</span>)}
+        </div>
+        <div className="gx-modal-result gx-gradient-text">{project.result}</div>
+      </div>
+    </div>
+  );
+}
+
 export default function Portfolio() {
   const [filter, setFilter] = useState("Tümü");
+  const [selected, setSelected] = useState(null);
   const filtered = filter === "Tümü" ? PROJECTS : PROJECTS.filter((p) => p.categories.includes(filter));
 
   return (
@@ -432,6 +515,7 @@ export default function Portfolio() {
             </p>
             <div className="gx-cta-row">
               <a className="gx-btn gx-btn-primary" href="#projects">Sistemleri Gör <ArrowUpRight size={16} /></a>
+              <a className="gx-btn gx-btn-secondary" href="/cv/Mehmet_Fatih_Suna_CV.pdf" download>CV İndir <Download size={16} /></a>
               <a className="gx-btn gx-btn-secondary" href="#contact">İletişime Geç</a>
             </div>
           </Reveal>
@@ -510,19 +594,26 @@ export default function Portfolio() {
           <div className="gx-project-grid">
             {filtered.map((p, i) => (
               <Reveal delay={i * 80} key={p.title}>
-                <div className="gx-glass gx-project-card">
+                <div
+                  className="gx-glass gx-project-card"
+                  onClick={() => setSelected(p)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(p); }}
+                >
                   <div className="gx-project-head">
                     <span className="gx-project-badge">{p.categories[0]}</span>
                   </div>
                   <h3 className="gx-project-title">{p.title}</h3>
                   <p className="gx-project-desc">{p.desc}</p>
-                  <div className="gx-project-tech">{p.tech}</div>
+                  <div className="gx-project-tech">{p.tech.join(" · ")}</div>
                   <div className="gx-project-result">{p.result}</div>
                 </div>
               </Reveal>
             ))}
           </div>
         </section>
+        {selected && <ProjectModal project={selected} onClose={() => setSelected(null)} />}
 
         <section className="gx-section" id="experience">
           <Reveal>
