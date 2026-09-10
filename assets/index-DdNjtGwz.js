@@ -123,7 +123,7 @@ html { scrollbar-color: rgba(255,255,255,0.2) #0B0B0D; scrollbar-width: thin; }
   overflow-x: hidden;
 }
 .ap-root * { box-sizing: border-box; }
-.ap-root a { color: inherit; text-decoration: none; }
+.ap-root a { text-decoration: none; }
 .ap-root button { font-family: inherit; cursor: pointer; background: none; border: none; }
 .ap-root :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
 
