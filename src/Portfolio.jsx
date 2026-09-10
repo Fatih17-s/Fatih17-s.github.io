@@ -320,6 +320,22 @@ const CATEGORIES = ["Tümü", "Yönetim Sistemi", "ERP Entegrasyonu", "IoT"];
 
 const PROJECTS = [
   {
+    title: "BT Envanter Yönetim Sistemi (ITAM)",
+    categories: ["Yönetim Sistemi"],
+    desc: "Yüzlerce cihazın zimmet, bakım, arıza ve hurda süreçlerini tek platformda topladım.",
+    details: "Yüzlerce cihazın zimmet, bakım, arıza ve hurda süreçlerini tek platformda topladım; PDF zimmet formu üretimi, yönlendirmeli destek talep sistemi ve personel portalı içeriyor. En kapsamlı ve en çok kullanılan sistemim.",
+    features: [
+      "Cihaz zimmet, bakım, arıza ve hurda süreçlerinin tek platformda takibi",
+      "PDF zimmet formu otomatik üretimi",
+      "Yönlendirmeli destek talep sistemi (otomatik atama)",
+      "Kanban tabanlı iş takip panosu",
+      "Personel portalı — her çalışan kendi zimmetini görebiliyor",
+      "5 şubede aynı anda canlı kullanım",
+    ],
+    tech: ["Node.js / Express", "React", "PostgreSQL", "PM2"],
+    result: "Zimmet süreci: 30 dk → 2 dk",
+  },
+  {
     title: "Yönetim Paneli (Dashboard)",
     categories: ["ERP Entegrasyonu", "Yönetim Sistemi"],
     desc: "ERP verisini gerçek zamanlı okuyarak stok, üretim ve satış süreçlerini tek ekranda izlenebilir hale getirdim.",
