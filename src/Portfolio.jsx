@@ -1,314 +1,244 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Github, Mail, Linkedin, ArrowUpRight, Download } from "lucide-react";
+import { Github, Mail, Linkedin, ArrowUpRight, Download, X, CheckCircle2 } from "lucide-react";
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-html, body, #root {
-  margin: 0; padding: 0;
-  background: #0A0D16;
-}
-html { scrollbar-color: rgba(255,255,255,0.18) #0A0D16; scrollbar-width: thin; }
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: #0A0D16; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 6px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+html, body, #root { margin: 0; padding: 0; background: #0B0B0D; }
+html { scrollbar-color: rgba(255,255,255,0.2) #0B0B0D; scrollbar-width: thin; }
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #0B0B0D; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 6px; }
 
-.gx-root {
-  --bg: #0A0D16;
-  --bg-2: #0F1220;
-  --glass: rgba(255,255,255,0.045);
-  --glass-border: rgba(255,255,255,0.09);
-  --glass-border-hover: rgba(255,255,255,0.18);
-  --blue: #5B8CFF;
-  --violet: #A855F7;
-  --warm: #FF9F5A;
-  --text: #F3F5FA;
-  --text-dim: #8C93A8;
+.ap-root {
+  color-scheme: dark light;
+  --black: #0B0B0D;
+  --near-black: #131315;
+  --white: #FFFFFF;
+  --offwhite: #F5F5F7;
+  --ink: #1D1D1F;
+  --ink-dim: #6E6E73;
+  --red: #E5342A;
+  --red-light: #FF6B5E;
+  --line-light: rgba(0,0,0,0.09);
+  --line-dark: rgba(255,255,255,0.12);
+  --on-dark: #F5F5F7;
+  --on-dark-dim: rgba(245,245,247,0.62);
 
-  background: var(--bg);
-  color: var(--text);
   font-family: 'Inter', sans-serif;
-  line-height: 1.6;
-  position: relative;
+  color: var(--ink);
+  background: var(--white);
+  line-height: 1.55;
   overflow-x: hidden;
-  min-height: 100vh;
 }
-.gx-root * { box-sizing: border-box; }
-.gx-root a { color: inherit; text-decoration: none; }
-.gx-root button { font-family: inherit; cursor: pointer; background: none; border: none; }
-.gx-root :focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+.ap-root * { box-sizing: border-box; }
+.ap-root a { color: inherit; text-decoration: none; }
+.ap-root button { font-family: inherit; cursor: pointer; background: none; border: none; }
+.ap-root :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
 
-.gx-mono { font-family: 'JetBrains Mono', monospace; }
-.gx-display { font-family: 'Sora', sans-serif; }
-.gx-gradient-text {
-  background-image: linear-gradient(100deg, var(--blue), var(--violet));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-
-/* ---------- Ambient aurora background ---------- */
-.gx-aurora { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.gx-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.35; }
-.gx-blob-1 { width: 480px; height: 480px; background: var(--blue); top: -120px; left: -80px; animation: gx-drift1 24s ease-in-out infinite; }
-.gx-blob-2 { width: 520px; height: 520px; background: var(--violet); top: 20%; right: -160px; animation: gx-drift2 28s ease-in-out infinite; }
-.gx-blob-3 { width: 400px; height: 400px; background: var(--warm); bottom: -140px; left: 30%; opacity: 0.18; animation: gx-drift1 32s ease-in-out infinite reverse; }
-@keyframes gx-drift1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,60px) scale(1.1); } }
-@keyframes gx-drift2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-50px,40px) scale(0.95); } }
-@media (prefers-reduced-motion: reduce) { .gx-blob { animation: none !important; } }
-
-.gx-content { position: relative; z-index: 1; }
-
-/* ---------- Nav ---------- */
-.gx-nav {
+/* ---------- Nav (always dark) ---------- */
+.ap-nav {
   position: sticky; top: 0; z-index: 50;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 32px;
-  background: rgba(10, 13, 22, 0.6);
+  padding: 14px 32px;
+  background: rgba(11,11,13,0.82);
   backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--line-dark);
 }
-.gx-nav-logo {
-  font-family: 'Sora', sans-serif; font-weight: 800; font-size: 0.95rem;
-  letter-spacing: -0.01em;
-}
-.gx-nav-links { display: flex; gap: 28px; }
-.gx-nav-link {
-  font-size: 0.85rem; color: var(--text-dim); font-weight: 500;
-  transition: color 0.2s ease;
-}
-.gx-nav-link:hover { color: var(--text); }
-.gx-nav-icon {
+.ap-nav-brand { display: flex; align-items: center; gap: 10px; }
+.ap-nav-badge {
+  width: 28px; height: 28px; border-radius: 7px; background: var(--red);
   display: flex; align-items: center; justify-content: center;
-  width: 36px; height: 36px; border-radius: 10px;
-  background: var(--glass); border: 1px solid var(--glass-border);
-  color: var(--text); transition: all 0.25s ease;
+  font-weight: 800; font-size: 0.78rem; color: #fff;
 }
-.gx-nav-icon:hover { border-color: var(--blue); box-shadow: 0 0 20px rgba(91,140,255,0.35); }
-@media (max-width: 720px) { .gx-nav-links .gx-nav-link { display: none; } }
-
-/* ---------- Sections ---------- */
-.gx-section { padding: 110px 32px; max-width: 1140px; margin: 0 auto; position: relative; }
-.gx-eyebrow {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
-  text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue);
-  margin-bottom: 14px; display: inline-flex; align-items: center; gap: 8px;
+.ap-nav-name { color: var(--on-dark); font-weight: 700; font-size: 0.92rem; }
+.ap-nav-links { display: flex; gap: 26px; }
+.ap-nav-link { color: var(--on-dark-dim); font-size: 0.85rem; font-weight: 500; transition: color 0.2s ease; }
+.ap-nav-link:hover { color: var(--on-dark); }
+.ap-nav-cta {
+  background: var(--red); color: #fff; font-size: 0.8rem; font-weight: 700;
+  padding: 9px 18px; border-radius: 100px; transition: transform 0.2s ease, background 0.2s ease;
 }
-.gx-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 8px var(--blue); }
-.gx-section-title {
-  font-family: 'Sora', sans-serif; font-weight: 800;
-  font-size: clamp(1.9rem, 4vw, 2.8rem); line-height: 1.1; margin: 0 0 18px 0;
-}
-.gx-section-head { max-width: 620px; margin-bottom: 48px; }
-.gx-lead { color: var(--text-dim); font-size: 1.03rem; }
+.ap-nav-cta:hover { background: var(--red-light); transform: translateY(-1px); }
+@media (max-width: 760px) { .ap-nav-links { display: none; } }
 
 /* ---------- Reveal ---------- */
-.gx-reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.65s ease, transform 0.65s ease; }
-.gx-reveal.gx-in { opacity: 1; transform: none; }
-@media (prefers-reduced-motion: reduce) { .gx-reveal { transition: none !important; opacity: 1 !important; transform: none !important; } }
+.ap-reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.ap-reveal.ap-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .ap-reveal { transition: none !important; opacity: 1 !important; transform: none !important; } }
 
-/* ---------- Glass card base ---------- */
-.gx-glass {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  border-radius: 18px;
-  backdrop-filter: blur(16px);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+/* ---------- Hero (dark) ---------- */
+.ap-hero {
+  position: relative; background: var(--black); padding: 90px 32px 160px; overflow: hidden;
 }
-.gx-glass:hover { border-color: var(--glass-border-hover); }
-
-/* ---------- Hero ---------- */
-.gx-hero { padding: 88px 32px 40px; max-width: 1140px; margin: 0 auto; position: relative; }
-.gx-hero-tag {
+.ap-hero::before {
+  content: ''; position: absolute; top: -200px; right: -160px; width: 640px; height: 640px;
+  background: radial-gradient(circle, rgba(229,52,42,0.28), transparent 68%);
+  pointer-events: none;
+}
+.ap-hero-inner { max-width: 900px; margin: 0 auto; text-align: center; position: relative; }
+.ap-eyebrow-pill {
+  display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--red-light); margin-bottom: 26px;
+}
+.ap-hero-headline {
+  font-size: clamp(2.4rem, 6vw, 4.2rem); font-weight: 800; line-height: 1.08;
+  letter-spacing: -0.02em; color: var(--on-dark); margin: 0 0 22px 0;
+}
+.ap-hero-headline .hl { color: var(--red-light); }
+.ap-hero-sub {
+  font-size: clamp(1.02rem, 1.6vw, 1.2rem); color: var(--on-dark-dim);
+  max-width: 620px; margin: 0 auto 38px; font-weight: 400;
+}
+.ap-cta-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 26px; }
+.ap-btn {
   display: inline-flex; align-items: center; gap: 8px;
-  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem;
-  padding: 7px 14px; border-radius: 100px;
-  background: var(--glass); border: 1px solid var(--glass-border);
-  color: var(--text-dim); margin-bottom: 26px;
+  font-size: 0.92rem; font-weight: 700; padding: 14px 26px; border-radius: 100px;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
-.gx-hero-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--violet); box-shadow: 0 0 8px var(--violet); }
-.gx-hero-name {
-  font-family: 'Sora', sans-serif; font-weight: 800;
-  font-size: clamp(2.6rem, 6.6vw, 4.6rem); line-height: 1.04;
-  letter-spacing: -0.02em; margin: 0 0 16px 0;
+.ap-btn-primary { background: var(--red); color: #fff; }
+.ap-btn-primary:hover { background: var(--red-light); transform: translateY(-2px); }
+.ap-btn-outline-dark { background: rgba(255,255,255,0.07); border: 1.5px solid rgba(255,255,255,0.4); color: #FFFFFF; }
+.ap-btn-outline-dark:hover { background: rgba(255,255,255,0.14); border-color: rgba(255,255,255,0.65); transform: translateY(-2px); }
+.ap-trust-line {
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--on-dark-dim); font-weight: 600;
 }
-.gx-hero-title {
-  font-size: clamp(1.05rem, 2vw, 1.3rem); font-weight: 600; color: var(--text);
-  margin: 0 0 18px 0;
-}
-.gx-hero-sub { max-width: 560px; color: var(--text-dim); margin-bottom: 34px; font-size: 1.05rem; }
-.gx-cta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 56px; }
-.gx-btn {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 0.9rem; font-weight: 600; padding: 14px 24px; border-radius: 100px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-.gx-btn-primary {
-  background: linear-gradient(100deg, var(--blue), var(--violet)); color: #fff;
-  box-shadow: 0 8px 30px rgba(91,140,255,0.28);
-}
-.gx-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(168,85,247,0.4); }
-.gx-btn-secondary { background: var(--glass); border: 1px solid var(--glass-border); color: var(--text); }
-.gx-btn-secondary:hover { border-color: var(--glass-border-hover); transform: translateY(-2px); }
 
-/* ---------- Stat grid ---------- */
-.gx-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 20px; }
-.gx-stat-card { padding: 22px; }
-.gx-stat-value {
-  font-family: 'Sora', sans-serif; font-weight: 800; font-size: 2rem;
-  margin-bottom: 6px; font-variant-numeric: tabular-nums;
+/* ---------- Hero floating mockup ---------- */
+.ap-mock-wrap { max-width: 780px; margin: 56px auto -140px; position: relative; z-index: 2; }
+.ap-mock {
+  background: var(--white); border-radius: 16px; overflow: hidden;
+  box-shadow: 0 40px 90px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,0,0,0.04);
 }
-.gx-stat-label { font-size: 0.82rem; color: var(--text-dim); }
+.ap-mock-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: #EDEDEF; border-bottom: 1px solid var(--line-light); }
+.ap-mock-dot { width: 10px; height: 10px; border-radius: 50%; background: #D3D3D6; }
+.ap-mock-dot.red { background: #FF5F56; }
+.ap-mock-dot.yellow { background: #FFBD2E; }
+.ap-mock-dot.green { background: #27C93F; }
+.ap-mock-url {
+  margin-left: 10px; font-size: 0.72rem; color: var(--ink-dim);
+  background: #fff; border: 1px solid var(--line-light); border-radius: 6px; padding: 4px 12px;
+}
+.ap-mock-body { display: grid; grid-template-columns: 160px 1fr; min-height: 220px; }
+@media (max-width: 620px) { .ap-mock-body { grid-template-columns: 1fr; } .ap-mock-sidebar { display: none; } }
+.ap-mock-sidebar { background: var(--offwhite); border-right: 1px solid var(--line-light); padding: 18px 14px; }
+.ap-mock-side-item { font-size: 0.78rem; color: var(--ink-dim); padding: 9px 10px; border-radius: 7px; font-weight: 500; }
+.ap-mock-side-item.active { background: #fff; color: var(--ink); font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.ap-mock-main { padding: 20px; }
+.ap-mock-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 13px 4px; border-bottom: 1px solid var(--line-light); font-size: 0.86rem; color: var(--ink);
+}
+.ap-mock-row:last-child { border-bottom: none; }
+.ap-mock-status { font-size: 0.72rem; color: #1AA24A; font-weight: 700; }
 
-/* ---------- About ---------- */
-.gx-about-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 44px; }
-@media (max-width: 800px) { .gx-about-grid { grid-template-columns: 1fr; } }
-.gx-facts-card { padding: 26px; }
-.gx-facts { list-style: none; margin: 0; padding: 0; }
-.gx-facts li {
-  display: flex; gap: 10px; align-items: baseline;
-  font-size: 0.88rem; padding: 12px 0; border-bottom: 1px solid var(--glass-border);
-  color: var(--text-dim);
+/* ---------- Sections ---------- */
+.ap-section { padding: 200px 32px 100px; max-width: 1080px; margin: 0 auto; }
+.ap-section + .ap-section { padding-top: 100px; }
+.ap-section-offwhite { background: var(--offwhite); }
+.ap-section-dark { background: var(--black); color: var(--on-dark); }
+.ap-full { max-width: none; padding-left: 0; padding-right: 0; }
+.ap-eyebrow {
+  display: inline-block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--red); margin-bottom: 14px;
 }
-.gx-facts li:last-child { border-bottom: none; }
-.gx-facts li span.label { color: var(--text); font-weight: 600; min-width: 92px; flex-shrink: 0; }
+.ap-section-dark .ap-eyebrow { color: var(--red-light); }
+.ap-h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); font-weight: 800; letter-spacing: -0.01em; margin: 0 0 18px 0; line-height: 1.12; }
+.ap-section-head { max-width: 640px; margin-bottom: 44px; }
+.ap-lead { color: var(--ink-dim); font-size: 1.03rem; }
+.ap-section-dark .ap-lead { color: var(--on-dark-dim); }
+
+/* ---------- About / stats ---------- */
+.ap-about-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; margin-bottom: 56px; }
+@media (max-width: 800px) { .ap-about-grid { grid-template-columns: 1fr; } }
+.ap-facts { list-style: none; margin: 0; padding: 0; }
+.ap-facts li { display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line-light); font-size: 0.9rem; color: var(--ink-dim); }
+.ap-facts li span.label { color: var(--ink); font-weight: 700; min-width: 96px; flex-shrink: 0; }
+.ap-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1px; background: var(--line-light); border: 1px solid var(--line-light); border-radius: 14px; overflow: hidden; }
+.ap-stat-cell { background: var(--white); padding: 26px 20px; text-align: center; }
+.ap-stat-value { font-size: 2.1rem; font-weight: 800; color: var(--red); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.ap-stat-label { font-size: 0.8rem; color: var(--ink-dim); margin-top: 4px; }
 
 /* ---------- Skills ---------- */
-.gx-skill-group { margin-bottom: 26px; }
-.gx-skill-group-title {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
-  text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-dim); margin-bottom: 14px;
-}
-.gx-tag-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-.gx-tag {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
-  padding: 9px 16px; border-radius: 100px;
-  background: var(--glass); border: 1px solid var(--glass-border);
-  transition: all 0.25s ease;
-}
-.gx-tag:hover { border-color: var(--blue); box-shadow: 0 0 16px rgba(91,140,255,0.25); transform: translateY(-2px); }
+.ap-skill-group { margin-bottom: 24px; }
+.ap-skill-group-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); margin-bottom: 12px; }
+.ap-tag-grid { display: flex; flex-wrap: wrap; gap: 9px; }
+.ap-tag { font-size: 0.84rem; font-weight: 500; padding: 8px 15px; border-radius: 100px; background: var(--white); border: 1px solid var(--line-light); transition: all 0.2s ease; }
+.ap-tag:hover { border-color: var(--red); color: var(--red); transform: translateY(-1px); }
 
-/* ---------- Projects ---------- */
-.gx-filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 36px; }
-.gx-filter-chip {
-  font-size: 0.82rem; font-weight: 500; padding: 9px 18px; border-radius: 100px;
-  background: var(--glass); border: 1px solid var(--glass-border); color: var(--text-dim);
-  transition: all 0.25s ease;
+/* ---------- Spotlight project ---------- */
+.ap-spotlight { background: var(--black); color: var(--on-dark); border-radius: 22px; padding: 46px; margin-bottom: 24px; position: relative; overflow: hidden; }
+.ap-spotlight::before {
+  content: ''; position: absolute; bottom: -160px; left: -120px; width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(229,52,42,0.22), transparent 70%);
 }
-.gx-filter-chip.active { background: linear-gradient(100deg, var(--blue), var(--violet)); color: #fff; border-color: transparent; font-weight: 600; }
-.gx-filter-chip:not(.active):hover { border-color: var(--glass-border-hover); color: var(--text); }
+.ap-spotlight-tag {
+  display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--red-light); border: 1px solid rgba(255,107,94,0.4); padding: 5px 12px; border-radius: 100px; margin-bottom: 18px;
+}
+.ap-spotlight-title { font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; margin: 0 0 14px 0; max-width: 520px; }
+.ap-spotlight-desc { color: var(--on-dark-dim); max-width: 540px; margin-bottom: 24px; font-size: 0.98rem; }
+.ap-spotlight-tech { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 26px; }
+.ap-spotlight-tech span { font-size: 0.76rem; font-weight: 500; padding: 6px 13px; border-radius: 100px; background: rgba(255,255,255,0.08); border: 1px solid var(--line-dark); }
+.ap-spotlight-result { display: inline-flex; align-items: center; gap: 8px; font-size: 1.02rem; font-weight: 700; color: #fff; }
+.ap-spotlight-result::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--red-light); }
 
-.gx-project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: stretch; }
-.gx-project-grid > .gx-reveal { height: 100%; }
-.gx-project-card {
-  padding: 24px; display: flex; flex-direction: column;
-  height: 100%; min-height: 300px; cursor: pointer; text-align: left; width: 100%;
+/* ---------- Project grid ---------- */
+.ap-filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; }
+.ap-filter-chip { font-size: 0.82rem; font-weight: 600; padding: 9px 17px; border-radius: 100px; background: var(--white); border: 1px solid var(--line-light); color: var(--ink-dim); transition: all 0.2s ease; }
+.ap-filter-chip.active { background: var(--red); color: #fff; border-color: var(--red); }
+.ap-filter-chip:not(.active):hover { border-color: var(--red); color: var(--red); }
+.ap-project-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; align-items: stretch; }
+.ap-project-grid > .ap-reveal { height: 100%; }
+.ap-project-card {
+  background: var(--white); border: 1px solid var(--line-light); border-radius: 16px; padding: 24px;
+  display: flex; flex-direction: column; height: 100%; min-height: 260px; cursor: pointer; text-align: left; width: 100%;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
 }
-.gx-project-card:hover { transform: translateY(-5px); box-shadow: 0 16px 50px rgba(91,140,255,0.14); }
-.gx-project-head {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
-}
-.gx-project-badge {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase;
-  letter-spacing: 0.06em; color: var(--violet); background: rgba(168,85,247,0.12);
-  padding: 4px 10px; border-radius: 100px;
-}
-.gx-project-title { font-family: 'Sora', sans-serif; font-size: 1.1rem; font-weight: 700; margin: 0 0 10px 0; }
-.gx-project-desc { color: var(--text-dim); font-size: 0.89rem; margin: 0 0 16px 0; flex-grow: 1; }
-.gx-project-tech {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--text-dim);
-  margin-bottom: 16px;
-}
-.gx-project-result {
-  font-size: 0.85rem; font-weight: 600; padding-top: 14px;
-  border-top: 1px solid var(--glass-border);
-  background-image: linear-gradient(100deg, var(--blue), var(--violet));
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
+.ap-project-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); border-color: var(--line-light); }
+.ap-project-tag { display: inline-block; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--red); background: rgba(229,52,42,0.08); padding: 4px 10px; border-radius: 100px; margin-bottom: 14px; }
+.ap-project-title { font-size: 1.06rem; font-weight: 700; margin: 0 0 8px 0; }
+.ap-project-desc { color: var(--ink-dim); font-size: 0.87rem; margin: 0 0 14px 0; flex-grow: 1; }
+.ap-project-tech { font-size: 0.72rem; color: var(--ink-dim); margin-bottom: 14px; }
+.ap-project-result { font-size: 0.85rem; font-weight: 700; color: var(--red); padding-top: 12px; border-top: 1px solid var(--line-light); }
 
-/* ---------- Project detail modal ---------- */
-.gx-modal-backdrop {
-  position: fixed; inset: 0; z-index: 100;
-  background: rgba(5,7,12,0.72); backdrop-filter: blur(8px);
-  display: flex; align-items: center; justify-content: center; padding: 24px;
-  animation: gx-fade-in 0.2s ease;
-}
-@keyframes gx-fade-in { from { opacity: 0; } to { opacity: 1; } }
-.gx-modal {
-  max-width: 580px; width: 100%; max-height: 85vh; overflow-y: auto;
-  padding: 34px; position: relative;
-  animation: gx-modal-in 0.28s cubic-bezier(.16,1,.3,1);
-}
-@keyframes gx-modal-in { from { opacity: 0; transform: translateY(18px) scale(0.97); } to { opacity: 1; transform: none; } }
-.gx-modal-close {
-  position: absolute; top: 18px; right: 18px;
-  width: 38px; height: 38px; border-radius: 10px;
-  background: var(--glass); border: 1px solid var(--glass-border);
-  display: flex; align-items: center; justify-content: center;
-  color: var(--text); transition: all 0.2s ease;
-}
-.gx-modal-close:hover { border-color: var(--blue); box-shadow: 0 0 16px rgba(91,140,255,0.35); }
-.gx-modal-title { font-family: 'Sora', sans-serif; font-size: 1.5rem; font-weight: 800; margin: 16px 24px 16px 0; }
-.gx-modal-desc { color: var(--text-dim); font-size: 0.96rem; margin-bottom: 22px; }
-.gx-modal-tech-label {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; text-transform: uppercase;
-  letter-spacing: 0.1em; color: var(--text-dim); margin-bottom: 10px;
-}
-.gx-modal-tech-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-.gx-modal-result {
-  padding: 16px 18px; border-radius: 12px;
-  background: rgba(91,140,255,0.08); border: 1px solid rgba(91,140,255,0.22);
-  font-weight: 700; font-size: 0.95rem;
-}
+/* ---------- Modal ---------- */
+.ap-modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(11,11,13,0.6); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 24px; animation: ap-fade 0.2s ease; }
+@keyframes ap-fade { from { opacity: 0; } to { opacity: 1; } }
+.ap-modal { background: var(--white); border-radius: 20px; max-width: 640px; width: 100%; max-height: 86vh; overflow-y: auto; padding: 40px; position: relative; animation: ap-modal-in 0.28s cubic-bezier(.16,1,.3,1); }
+@keyframes ap-modal-in { from { opacity: 0; transform: translateY(16px) scale(0.97); } to { opacity: 1; transform: none; } }
+.ap-modal-close { position: absolute; top: 20px; right: 20px; width: 36px; height: 36px; border-radius: 10px; background: var(--offwhite); display: flex; align-items: center; justify-content: center; color: var(--ink); transition: all 0.2s ease; }
+.ap-modal-close:hover { background: #EAEAEC; }
+.ap-modal-title { font-size: 1.5rem; font-weight: 800; margin: 16px 30px 14px 0; letter-spacing: -0.01em; }
+.ap-modal-desc { color: var(--ink-dim); font-size: 0.96rem; margin-bottom: 24px; }
+.ap-modal-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-dim); margin-bottom: 12px; }
+.ap-modal-features { list-style: none; margin: 0 0 26px 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.ap-modal-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.92rem; color: var(--ink); }
+.ap-modal-features svg { color: var(--red); flex-shrink: 0; margin-top: 2px; }
+.ap-modal-tech-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.ap-modal-result { padding: 16px 18px; border-radius: 12px; background: rgba(229,52,42,0.06); border: 1px solid rgba(229,52,42,0.2); font-weight: 700; font-size: 0.95rem; color: var(--red); }
 
 /* ---------- Timeline ---------- */
-.gx-timeline { position: relative; padding-left: 30px; }
-.gx-timeline::before {
-  content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 1px;
-  background: linear-gradient(var(--blue), var(--violet));
-  opacity: 0.4;
-}
-.gx-timeline-item { position: relative; padding-bottom: 40px; }
-.gx-timeline-item:last-child { padding-bottom: 0; }
-.gx-timeline-dot {
-  position: absolute; left: -30px; top: 4px;
-  width: 13px; height: 13px; border-radius: 50%;
-  background: linear-gradient(100deg, var(--blue), var(--violet));
-  box-shadow: 0 0 14px rgba(91,140,255,0.6);
-}
-.gx-timeline-card { padding: 20px 24px; }
-.gx-timeline-stamp {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 0.7rem; font-weight: 600; color: var(--blue);
-  background: rgba(91,140,255,0.12); padding: 4px 10px; border-radius: 100px;
-  margin-left: 10px;
-}
-.gx-timeline-stamp .pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: gx-pulse 2s ease-in-out infinite; }
-@keyframes gx-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-.gx-timeline-date {
-  font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; color: var(--text-dim); margin-bottom: 8px;
-}
-.gx-timeline-role { font-family: 'Sora', sans-serif; font-size: 1.05rem; font-weight: 700; margin: 0 0 2px 0; }
-.gx-timeline-org { color: var(--violet); font-size: 0.9rem; margin-bottom: 8px; font-weight: 600; }
-.gx-timeline-desc { color: var(--text-dim); font-size: 0.88rem; max-width: 560px; }
+.ap-timeline { position: relative; padding-left: 28px; }
+.ap-timeline::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 1px; background: var(--line-light); }
+.ap-timeline-item { position: relative; padding-bottom: 36px; }
+.ap-timeline-item:last-child { padding-bottom: 0; }
+.ap-timeline-dot { position: absolute; left: -28px; top: 4px; width: 11px; height: 11px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 4px rgba(229,52,42,0.15); }
+.ap-timeline-date { font-size: 0.76rem; font-weight: 600; color: var(--ink-dim); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.ap-timeline-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.68rem; font-weight: 700; color: var(--red); border: 1px solid rgba(229,52,42,0.3); padding: 3px 9px; border-radius: 100px; margin-left: 8px; text-transform: uppercase; }
+.ap-timeline-role { font-size: 1.04rem; font-weight: 700; margin: 0 0 2px 0; }
+.ap-timeline-org { color: var(--red); font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; }
+.ap-timeline-desc { color: var(--ink-dim); font-size: 0.87rem; max-width: 560px; }
 
-/* ---------- Contact ---------- */
-.gx-contact-panel { padding: 40px; text-align: center; }
-.gx-contact-links { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
-.gx-contact-link {
-  display: inline-flex; align-items: center; gap: 10px;
-  padding: 14px 22px; border-radius: 100px;
-  background: var(--glass); border: 1px solid var(--glass-border);
-  font-weight: 600; font-size: 0.9rem; transition: all 0.25s ease;
-}
-.gx-contact-link:hover { border-color: var(--blue); box-shadow: 0 0 24px rgba(91,140,255,0.3); transform: translateY(-2px); }
+/* ---------- Contact (dark bookend) ---------- */
+.ap-contact-inner { max-width: 640px; margin: 0 auto; text-align: center; }
+.ap-contact-links { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+.ap-contact-link { display: inline-flex; align-items: center; gap: 9px; padding: 13px 20px; border-radius: 100px; border: 1.5px solid var(--line-dark); color: var(--on-dark); font-weight: 600; font-size: 0.88rem; transition: all 0.2s ease; }
+.ap-contact-link:hover { border-color: var(--red-light); color: var(--red-light); transform: translateY(-2px); }
 
 /* ---------- Footer ---------- */
-.gx-footer {
-  border-top: 1px solid var(--glass-border);
-  padding: 26px 32px; max-width: 1140px; margin: 0 auto;
-  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
-  font-size: 0.78rem; color: var(--text-dim);
-}
+.ap-footer { background: var(--black); border-top: 1px solid var(--line-dark); padding: 26px 32px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 0.76rem; color: var(--on-dark-dim); }
 `;
 
 function useInView() {
@@ -327,27 +257,25 @@ function useInView() {
   return [ref, inView];
 }
 
-function Reveal({ children, delay = 0, className = "" }) {
+function Reveal({ children, delay = 0 }) {
   const [ref, inView] = useInView();
   return (
-    <div ref={ref} className={`gx-reveal ${inView ? "gx-in" : ""} ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+    <div ref={ref} className={`ap-reveal ${inView ? "ap-in" : ""}`} style={{ transitionDelay: `${delay}ms` }}>
       {children}
     </div>
   );
 }
 
-function useCountUp(target, inView, duration = 1400) {
+function useCountUp(target, inView, duration = 1300) {
   const [value, setValue] = useState(0);
   useEffect(() => {
     if (!inView) return;
-    let start;
-    let raf;
+    let start; let raf;
     function step(ts) {
       if (!start) start = ts;
       const progress = Math.min((ts - start) / duration, 1);
       setValue(Math.floor(progress * target));
-      if (progress < 1) raf = requestAnimationFrame(step);
-      else setValue(target);
+      if (progress < 1) raf = requestAnimationFrame(step); else setValue(target);
     }
     raf = requestAnimationFrame(step);
     return () => cancelAnimationFrame(raf);
@@ -355,13 +283,13 @@ function useCountUp(target, inView, duration = 1400) {
   return value;
 }
 
-function StatCard({ value, prefix = "", suffix = "", label, delay }) {
+function StatCell({ value, prefix = "", suffix = "", label }) {
   const [ref, inView] = useInView();
   const count = useCountUp(value, inView);
   return (
-    <div ref={ref} className="gx-glass gx-stat-card" style={{ transitionDelay: `${delay}ms` }}>
-      <div className="gx-stat-value gx-gradient-text">{prefix}{count.toLocaleString("tr-TR")}{suffix}</div>
-      <div className="gx-stat-label">{label}</div>
+    <div ref={ref} className="ap-stat-cell">
+      <div className="ap-stat-value">{prefix}{count.toLocaleString("tr-TR")}{suffix}</div>
+      <div className="ap-stat-label">{label}</div>
     </div>
   );
 }
@@ -381,22 +309,28 @@ const SKILL_GROUPS = [
   { title: "Diğer", items: ["ESP8266 / IoT", "ZPL Etiket Programlama", "Python"] },
 ];
 
+const SPOTLIGHT = {
+  title: "BT Envanter Yönetim Sistemi (ITAM)",
+  desc: "Yüzlerce cihazın zimmet, bakım, arıza ve hurda süreçlerini tek platformda topladım; PDF zimmet formu üretimi, yönlendirmeli destek talep sistemi, Kanban tabanlı iş takip panosu ve personel portalı içeriyor. En kapsamlı ve en çok kullanılan sistemim.",
+  tech: ["Node.js / Express", "React", "PostgreSQL", "PM2"],
+  result: "Zimmet süreci: 30 dk → 2 dk",
+};
+
 const CATEGORIES = ["Tümü", "Yönetim Sistemi", "ERP Entegrasyonu", "IoT"];
 
 const PROJECTS = [
   {
-    title: "BT Envanter Yönetim Sistemi (ITAM)",
-    categories: ["Yönetim Sistemi"],
-    desc: "Yüzlerce cihazın zimmet, bakım, arıza ve hurda süreçlerini tek platformda topladım.",
-    details: "Yüzlerce cihazın zimmet, bakım, arıza ve hurda süreçlerini tek platformda topladım; PDF zimmet formu üretimi, yönlendirmeli destek talep sistemi (uygun ekibe otomatik atama), Kanban tabanlı iş takip panosu ve her çalışanın kendi zimmetini görebildiği bir personel portalı içeriyor. Daha önce Excel üzerinden manuel yürütülen tüm süreç artık uçtan uca dijital.",
-    tech: ["Node.js / Express", "React", "PostgreSQL", "PM2"],
-    result: "Zimmet süreci: 30 dk → 2 dk",
-  },
-  {
     title: "Yönetim Paneli (Dashboard)",
     categories: ["ERP Entegrasyonu", "Yönetim Sistemi"],
     desc: "ERP verisini gerçek zamanlı okuyarak stok, üretim ve satış süreçlerini tek ekranda izlenebilir hale getirdim.",
-    details: "ERP verisini gerçek zamanlı okuyarak stok, üretim, satış ve satın alma süreçlerini tek ekranda izlenebilir hale getirdim. Departman bazlı yetkilendirme ve grafik/tablo raporlama içeriyor; yöneticiler ERP arayüzüne hiç girmeden anlık rapor alabiliyor.",
+    details: "ERP verisini gerçek zamanlı okuyarak stok, üretim, satış ve satın alma süreçlerini tek ekranda izlenebilir hale getirdim.",
+    features: [
+      "ERP verisinin gerçek zamanlı okunması (stok, üretim, satış, satın alma)",
+      "Departman bazlı yetkilendirme",
+      "Grafik/tablo tabanlı karar destek raporları",
+      "Yöneticilerin ERP arayüzüne girmeden rapor alabilmesi",
+      "Çoklu şube verisinin tek ekranda konsolide edilmesi",
+    ],
     tech: ["Node.js", "React", "SAP MSSQL (read-only)"],
     result: "Rapor hazırlama yükü BT'den kalktı",
   },
@@ -404,7 +338,14 @@ const PROJECTS = [
     title: "Etiket Yönetim Uygulaması",
     categories: ["ERP Entegrasyonu"],
     desc: "ERP verisinden otomatik dolan şablonlarla çoklu yazıcı filosunu tek arayüzden yönetilebilir hale getirdim.",
-    details: "ERP verisinden otomatik dolan şablonlarla çoklu yazıcı filosunu tek arayüzden yönetilebilir hale getirdim. Rol bazlı yetkilendirme, parti/sipariş verisinin otomatik doldurulması ve farklı etiket formatları için çoklu şablon desteği içeriyor. Manuel veri girişi ortadan kalktı.",
+    details: "ERP verisinden otomatik dolan şablonlarla çoklu yazıcı filosunu tek arayüzden yönetilebilir hale getirdim.",
+    features: [
+      "ERP verisinden otomatik dolan etiket şablonları",
+      "Çoklu yazıcı filosunun tek arayüzden yönetimi",
+      "Rol bazlı yetkilendirme",
+      "Parti/sipariş verisinin otomatik eşleştirilmesi",
+      "Manuel veri girişinin ortadan kaldırılması",
+    ],
     tech: ["ASP.NET Core (.NET)", "React", "MSSQL"],
     result: "Etiket hata oranı: %80 azaldı",
   },
@@ -412,7 +353,15 @@ const PROJECTS = [
     title: "Stok Sayım Uygulaması",
     categories: ["ERP Entegrasyonu", "Yönetim Sistemi"],
     desc: "Barkod okutmalı sayım sistemi; anlık ürün doğrulama ve rol bazlı yetkilendirme içeriyor.",
-    details: "Barkod okutmalı dönemsel sayım sistemi; ERP üzerinden anlık ürün doğrulama, 3 seviyeli rol bazlı yetkilendirme, çok sayfalı Excel/e-posta raporlama ve bot üzerinden bildirim akışı içeriyor. Ekiple birlikte yürütülen dönem sayımları artık çok daha kısa sürede tamamlanıyor.",
+    details: "Barkod okutmalı dönemsel sayım sistemi; ERP üzerinden anlık ürün doğrulama içeriyor.",
+    features: [
+      "Barkod okutmalı dönemsel sayım akışı",
+      "ERP üzerinden anlık ürün doğrulama",
+      "3 seviyeli rol bazlı yetkilendirme",
+      "Çok sayfalı Excel / e-posta raporlama",
+      "Bot üzerinden bildirim ve uzaktan sıfırlama",
+      "Çoklu şube sayım desteği",
+    ],
     tech: ["Node.js", "React / Vite", "PostgreSQL", "SAP MSSQL"],
     result: "Sayım süresi: 12 saat → 6 saat",
   },
@@ -420,7 +369,14 @@ const PROJECTS = [
     title: "IoT Sıcaklık & Nem İzleme Sistemi",
     categories: ["IoT"],
     desc: "Çoklu lokasyonda 7/24 ortam izleme altyapısı kurdum.",
-    details: "Çoklu lokasyonda 7/24 ortam izleme altyapısı kurdum. Eşik aşımında anlık bot bildirimi, haftalık/aylık otomatik e-posta raporları ve lokasyon bazlı yetkilendirme içeriyor; sıcaklık/nem kaynaklı riskler oluşmadan tespit ediliyor.",
+    details: "Çoklu lokasyonda 7/24 ortam izleme altyapısı kurdum; eşik aşımında anlık uyarı içeriyor.",
+    features: [
+      "Çoklu lokasyonda 7/24 ortam izleme",
+      "Eşik aşımında anlık bot bildirimi",
+      "Haftalık/aylık otomatik e-posta raporları",
+      "Lokasyon bazlı yetkilendirme",
+      "Riskin oluşmadan tespit edilmesi",
+    ],
     tech: ["ESP8266", "Node.js", "PostgreSQL", "Telegram Bot API"],
     result: "Riskler oluşmadan tespit ediliyor",
   },
@@ -453,24 +409,27 @@ function ProjectModal({ project, onClose }) {
     document.body.style.overflow = "hidden";
     function onKey(e) { if (e.key === "Escape") onClose(); }
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [onClose]);
 
   return (
-    <div className="gx-modal-backdrop" onClick={onClose}>
-      <div className="gx-glass gx-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="gx-modal-close" onClick={onClose} aria-label="Kapat">✕</button>
-        <span className="gx-project-badge">{project.categories[0]}</span>
-        <h3 className="gx-modal-title">{project.title}</h3>
-        <p className="gx-modal-desc">{project.details}</p>
-        <div className="gx-modal-tech-label">Kullanılan Teknolojiler</div>
-        <div className="gx-modal-tech-grid">
-          {project.tech.map((t) => <span className="gx-tag" key={t}>{t}</span>)}
+    <div className="ap-modal-backdrop" onClick={onClose}>
+      <div className="ap-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="ap-modal-close" onClick={onClose} aria-label="Kapat"><X size={18} /></button>
+        <span className="ap-project-tag">{project.categories[0]}</span>
+        <h3 className="ap-modal-title">{project.title}</h3>
+        <p className="ap-modal-desc">{project.details}</p>
+        <div className="ap-modal-label">Kapsam</div>
+        <ul className="ap-modal-features">
+          {project.features.map((f) => (
+            <li key={f}><CheckCircle2 size={17} /><span>{f}</span></li>
+          ))}
+        </ul>
+        <div className="ap-modal-label">Kullanılan Teknolojiler</div>
+        <div className="ap-modal-tech-grid">
+          {project.tech.map((t) => <span className="ap-tag" key={t}>{t}</span>)}
         </div>
-        <div className="gx-modal-result gx-gradient-text">{project.result}</div>
+        <div className="ap-modal-result">{project.result}</div>
       </div>
     </div>
   );
@@ -482,192 +441,212 @@ export default function Portfolio() {
   const filtered = filter === "Tümü" ? PROJECTS : PROJECTS.filter((p) => p.categories.includes(filter));
 
   return (
-    <div className="gx-root">
+    <div className="ap-root">
       <style>{CSS}</style>
-      <div className="gx-aurora">
-        <div className="gx-blob gx-blob-1" />
-        <div className="gx-blob gx-blob-2" />
-        <div className="gx-blob gx-blob-3" />
-      </div>
 
-      <div className="gx-content">
-        <nav className="gx-nav">
-          <span className="gx-nav-logo">Fatih Suna</span>
-          <div className="gx-nav-links">
-            <a className="gx-nav-link" href="#about">Hakkımda</a>
-            <a className="gx-nav-link" href="#skills">Beceriler</a>
-            <a className="gx-nav-link" href="#projects">Sistemler</a>
-            <a className="gx-nav-link" href="#experience">Deneyim</a>
-            <a className="gx-nav-link" href="#contact">İletişim</a>
-          </div>
-          <a className="gx-nav-icon" href="https://github.com/Fatih17-s" target="_blank" rel="noreferrer" aria-label="GitHub">
-            <Github size={16} />
-          </a>
-        </nav>
+      <nav className="ap-nav">
+        <div className="ap-nav-brand">
+          <span className="ap-nav-badge">FS</span>
+          <span className="ap-nav-name">Mehmet Fatih Suna</span>
+        </div>
+        <div className="ap-nav-links">
+          <a className="ap-nav-link" href="#about">Hakkımda</a>
+          <a className="ap-nav-link" href="#skills">Beceriler</a>
+          <a className="ap-nav-link" href="#projects">Sistemler</a>
+          <a className="ap-nav-link" href="#experience">Deneyim</a>
+        </div>
+        <a className="ap-nav-cta" href="#contact">İletişime Geç</a>
+      </nav>
 
-        <header className="gx-hero">
+      <header className="ap-hero">
+        <div className="ap-hero-inner">
           <Reveal>
-            <div className="gx-hero-tag"><span className="dot" />BT &amp; SAP Sorumlusu / Full-Stack Geliştirici</div>
-            <h1 className="gx-hero-name">Mehmet Fatih <span className="gx-gradient-text">Suna</span></h1>
-            <p className="gx-hero-sub">
-              Bir üretim şirketinin BT ve SAP altyapısını tek başıma yönetiyor, aynı zamanda
-              şirketin kullandığı yazılımların çoğunu uçtan uca kendim geliştiriyorum.
+            <span className="ap-eyebrow-pill">BT &amp; SAP Sorumlusu · Full-Stack Geliştirici</span>
+            <h1 className="ap-hero-headline">Mehmet Fatih <span className="hl">Suna</span></h1>
+            <p className="ap-hero-sub">
+              5 lokasyonlu, 1.300 cihazlık bir üretim şirketinin BT ve SAP altyapısını tek başıma
+              yönetiyorum; aynı zamanda şirketin kullandığı başlıca yazılımları da uçtan uca kendim
+              geliştiriyorum. Envanter yönetimi, stok sayımı, üretim etiketleme ve IoT izleme
+              sistemlerini dış tedarikçiye ihtiyaç duymadan tasarlayıp üretime aldım.
             </p>
-            <div className="gx-cta-row">
-              <a className="gx-btn gx-btn-primary" href="#projects">Sistemleri Gör <ArrowUpRight size={16} /></a>
-              <a className="gx-btn gx-btn-secondary" href="/cv/Mehmet_Fatih_Suna_CV.pdf" download>CV İndir <Download size={16} /></a>
-              <a className="gx-btn gx-btn-secondary" href="#contact">İletişime Geç</a>
+            <div className="ap-cta-row">
+              <a className="ap-btn ap-btn-primary" href="#projects">Sistemleri Gör <ArrowUpRight size={16} /></a>
+              <a className="ap-btn ap-btn-outline-dark" href="/cv/Mehmet_Fatih_Suna_CV.pdf" download>CV İndir <Download size={16} /></a>
             </div>
+            <div className="ap-trust-line">5 Lokasyon · 1.300+ Cihaz · Tek Kişilik BT Ekibi</div>
           </Reveal>
-          <div className="gx-stat-grid">
-            {STATS.map((s, i) => <StatCard key={s.label} {...s} delay={i * 80} />)}
-          </div>
-        </header>
+        </div>
 
-        <section className="gx-section" id="about">
-          <Reveal><span className="gx-eyebrow">Hakkımda</span></Reveal>
-          <div className="gx-about-grid">
-            <Reveal delay={80}>
-              <p className="gx-lead">
-                2024'te Bilgisayar Mühendisliği eğitimimi tamamladım. O tarihten bu yana bir üretim
-                şirketinde BT ve SAP sistem sorumlusu olarak çalışıyorum; envanter yönetiminden
-                stok sayımına, üretim etiketlemeden ortam izlemeye kadar birbirine bağlı bir
-                yazılım ekosistemini tek başıma kurdum — beşi de aynı anda üretimde çalışan sistemler.
-              </p>
-              <p className="gx-lead" style={{ marginTop: 14 }}>
-                Kurumsal bir BT departmanının işletim yükünü, bir yazılım ekibinin çıktısıyla
-                aynı kişide birleştiriyorum.
-              </p>
-            </Reveal>
-            <Reveal delay={160}>
-              <div className="gx-glass gx-facts-card">
-                <ul className="gx-facts">
-                  <li><span className="label">Konum</span> Şanlıurfa, Türkiye</li>
-                  <li><span className="label">Rol</span> BT &amp; SAP Sorumlusu</li>
-                  <li><span className="label">Eğitim</span> Bilgisayar Müh. — 2020–2024</li>
-                  <li><span className="label">GitHub</span> github.com/Fatih17-s</li>
-                </ul>
+        <Reveal delay={120}>
+          <div className="ap-mock-wrap">
+            <div className="ap-mock">
+              <div className="ap-mock-bar">
+                <span className="ap-mock-dot red" /><span className="ap-mock-dot yellow" /><span className="ap-mock-dot green" />
+                <span className="ap-mock-url">sistemler.fatihsuna.dev</span>
               </div>
-            </Reveal>
+              <div className="ap-mock-body">
+                <div className="ap-mock-sidebar">
+                  <div className="ap-mock-side-item active">Dashboard</div>
+                  <div className="ap-mock-side-item">Cihazlar</div>
+                  <div className="ap-mock-side-item">Zimmet</div>
+                  <div className="ap-mock-side-item">Raporlar</div>
+                </div>
+                <div className="ap-mock-main">
+                  <div className="ap-mock-row"><span>BT Envanter (ITAM)</span><span className="ap-mock-status">● Aktif</span></div>
+                  <div className="ap-mock-row"><span>Etiket Yönetimi</span><span className="ap-mock-status">● Aktif</span></div>
+                  <div className="ap-mock-row"><span>Stok Sayım</span><span className="ap-mock-status">● Aktif</span></div>
+                  <div className="ap-mock-row"><span>IoT İzleme</span><span className="ap-mock-status">● Aktif</span></div>
+                </div>
+              </div>
+            </div>
           </div>
-        </section>
+        </Reveal>
+      </header>
 
-        <section className="gx-section" id="skills">
-          <Reveal>
-            <div className="gx-section-head">
-              <span className="gx-eyebrow">Beceriler</span>
-              <h2 className="gx-section-title">Kullandığım Araçlar</h2>
+      <section className="ap-section" id="about" style={{ paddingTop: 180 }}>
+        <Reveal><span className="ap-eyebrow">Hakkımda</span></Reveal>
+        <div className="ap-about-grid">
+          <Reveal delay={80}>
+            <p className="ap-lead">
+              2024'te Bilgisayar Mühendisliği eğitimimi tamamladım. O tarihten bu yana bir üretim
+              şirketinde BT ve SAP sistem sorumlusu olarak çalışıyorum; envanter yönetiminden
+              stok sayımına, üretim etiketlemeden ortam izlemeye kadar birbirine bağlı bir
+              yazılım ekosistemini tek başıma kurdum.
+            </p>
+            <p className="ap-lead" style={{ marginTop: 14 }}>
+              Kurumsal bir BT departmanının işletim yükünü, bir yazılım ekibinin çıktısıyla
+              aynı kişide birleştiriyorum.
+            </p>
+          </Reveal>
+          <Reveal delay={160}>
+            <ul className="ap-facts">
+              <li><span className="label">Konum</span> Şanlıurfa, Türkiye</li>
+              <li><span className="label">Rol</span> BT &amp; SAP Sorumlusu</li>
+              <li><span className="label">Eğitim</span> Bilgisayar Müh. — 2020–2024</li>
+              <li><span className="label">GitHub</span> github.com/Fatih17-s</li>
+            </ul>
+          </Reveal>
+        </div>
+        <Reveal delay={120}>
+          <div className="ap-stat-grid">
+            {STATS.map((s) => <StatCell key={s.label} {...s} />)}
+          </div>
+        </Reveal>
+      </section>
+
+      <section className="ap-section ap-section-offwhite" id="skills">
+        <Reveal>
+          <div className="ap-section-head">
+            <span className="ap-eyebrow">Beceriler</span>
+            <h2 className="ap-h2">Kullandığım Araçlar</h2>
+          </div>
+        </Reveal>
+        {SKILL_GROUPS.map((group, i) => (
+          <Reveal key={group.title} delay={i * 60}>
+            <div className="ap-skill-group">
+              <div className="ap-skill-group-title">{group.title}</div>
+              <div className="ap-tag-grid">
+                {group.items.map((item) => <span className="ap-tag" key={item}>{item}</span>)}
+              </div>
             </div>
           </Reveal>
-          {SKILL_GROUPS.map((group, i) => (
-            <Reveal key={group.title} delay={i * 70}>
-              <div className="gx-skill-group">
-                <div className="gx-skill-group-title">{group.title}</div>
-                <div className="gx-tag-grid">
-                  {group.items.map((item) => <span className="gx-tag" key={item}>{item}</span>)}
-                </div>
+        ))}
+      </section>
+
+      <section className="ap-section" id="projects">
+        <Reveal>
+          <div className="ap-section-head">
+            <span className="ap-eyebrow">Sistemler</span>
+            <h2 className="ap-h2">Geliştirdiğim Sistemler</h2>
+          </div>
+        </Reveal>
+
+        <Reveal delay={60}>
+          <div className="ap-spotlight">
+            <span className="ap-spotlight-tag">Öne Çıkan Sistem</span>
+            <h3 className="ap-spotlight-title">{SPOTLIGHT.title}</h3>
+            <p className="ap-spotlight-desc">{SPOTLIGHT.desc}</p>
+            <div className="ap-spotlight-tech">
+              {SPOTLIGHT.tech.map((t) => <span key={t}>{t}</span>)}
+            </div>
+            <div className="ap-spotlight-result">{SPOTLIGHT.result}</div>
+          </div>
+        </Reveal>
+
+        <Reveal delay={100}>
+          <div className="ap-filter-row">
+            {CATEGORIES.map((cat) => (
+              <button key={cat} className={`ap-filter-chip ${filter === cat ? "active" : ""}`} onClick={() => setFilter(cat)}>
+                {cat}
+              </button>
+            ))}
+          </div>
+        </Reveal>
+        <div className="ap-project-grid">
+          {filtered.map((p, i) => (
+            <Reveal delay={i * 70} key={p.title}>
+              <div
+                className="ap-project-card"
+                onClick={() => setSelected(p)}
+                role="button" tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(p); }}
+              >
+                <span className="ap-project-tag">{p.categories[0]}</span>
+                <h3 className="ap-project-title">{p.title}</h3>
+                <p className="ap-project-desc">{p.desc}</p>
+                <div className="ap-project-tech">{p.tech.join(" · ")}</div>
+                <div className="ap-project-result">{p.result}</div>
               </div>
             </Reveal>
           ))}
-        </section>
+        </div>
+      </section>
+      {selected && <ProjectModal project={selected} onClose={() => setSelected(null)} />}
 
-        <section className="gx-section" id="projects">
-          <Reveal>
-            <div className="gx-section-head">
-              <span className="gx-eyebrow">Sistemler</span>
-              <h2 className="gx-section-title">Geliştirdiğim Sistemler</h2>
-            </div>
-          </Reveal>
-          <Reveal delay={60}>
-            <div className="gx-filter-row">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat}
-                  className={`gx-filter-chip ${filter === cat ? "active" : ""}`}
-                  onClick={() => setFilter(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          </Reveal>
-          <div className="gx-project-grid">
-            {filtered.map((p, i) => (
-              <Reveal delay={i * 80} key={p.title}>
-                <div
-                  className="gx-glass gx-project-card"
-                  onClick={() => setSelected(p)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setSelected(p); }}
-                >
-                  <div className="gx-project-head">
-                    <span className="gx-project-badge">{p.categories[0]}</span>
-                  </div>
-                  <h3 className="gx-project-title">{p.title}</h3>
-                  <p className="gx-project-desc">{p.desc}</p>
-                  <div className="gx-project-tech">{p.tech.join(" · ")}</div>
-                  <div className="gx-project-result">{p.result}</div>
-                </div>
-              </Reveal>
-            ))}
+      <section className="ap-section ap-section-offwhite" id="experience">
+        <Reveal>
+          <div className="ap-section-head">
+            <span className="ap-eyebrow">Deneyim</span>
+            <h2 className="ap-h2">Kariyer Geçmişi</h2>
           </div>
-        </section>
-        {selected && <ProjectModal project={selected} onClose={() => setSelected(null)} />}
-
-        <section className="gx-section" id="experience">
-          <Reveal>
-            <div className="gx-section-head">
-              <span className="gx-eyebrow">Deneyim</span>
-              <h2 className="gx-section-title">Kariyer Geçmişi</h2>
-            </div>
-          </Reveal>
-          <div className="gx-timeline">
-            {EXPERIENCE.map((exp, i) => (
-              <Reveal delay={i * 90} key={exp.role}>
-                <div className="gx-timeline-item">
-                  <span className="gx-timeline-dot" />
-                  <div className="gx-glass gx-timeline-card">
-                    <div className="gx-timeline-date">
-                      {exp.date}
-                      {exp.current && <span className="gx-timeline-stamp"><span className="pulse" />Devam Ediyor</span>}
-                    </div>
-                    <h3 className="gx-timeline-role">{exp.role}</h3>
-                    <p className="gx-timeline-org">{exp.org}</p>
-                    <p className="gx-timeline-desc">{exp.desc}</p>
-                  </div>
+        </Reveal>
+        <div className="ap-timeline">
+          {EXPERIENCE.map((exp, i) => (
+            <Reveal delay={i * 90} key={exp.role}>
+              <div className="ap-timeline-item">
+                <span className="ap-timeline-dot" />
+                <div className="ap-timeline-date">
+                  {exp.date}
+                  {exp.current && <span className="ap-timeline-badge">Devam Ediyor</span>}
                 </div>
-              </Reveal>
-            ))}
-          </div>
-        </section>
-
-        <section className="gx-section" id="contact">
-          <Reveal>
-            <div className="gx-glass gx-contact-panel">
-              <span className="gx-eyebrow" style={{ justifyContent: "center" }}>İletişim</span>
-              <h2 className="gx-section-title">Birlikte Bir Şeyler İnşa Edelim</h2>
-              <p className="gx-lead">Yeni bir proje, iş birliği ya da sadece merhaba demek için ulaşabilirsin.</p>
-              <div className="gx-contact-links">
-                <a className="gx-contact-link" href="mailto:fatihsuna5663@gmail.com">
-                  <Mail size={16} /> fatihsuna5663@gmail.com
-                </a>
-                <a className="gx-contact-link" href="https://linkedin.com/in/fatih-s-a89495209" target="_blank" rel="noreferrer">
-                  <Linkedin size={16} /> LinkedIn
-                </a>
-                <a className="gx-contact-link" href="https://github.com/Fatih17-s" target="_blank" rel="noreferrer">
-                  <Github size={16} /> GitHub
-                </a>
+                <h3 className="ap-timeline-role">{exp.role}</h3>
+                <p className="ap-timeline-org">{exp.org}</p>
+                <p className="ap-timeline-desc">{exp.desc}</p>
               </div>
-            </div>
-          </Reveal>
-        </section>
+            </Reveal>
+          ))}
+        </div>
+      </section>
 
-        <footer className="gx-footer">
-          <span>© 2026 Mehmet Fatih Suna — Şanlıurfa</span>
-          <span>Bilgisayar Mühendisliği · İskenderun Teknik Üniversitesi</span>
-        </footer>
-      </div>
+      <section className="ap-section ap-section-dark ap-full" id="contact">
+        <Reveal>
+          <div className="ap-contact-inner">
+            <span className="ap-eyebrow">İletişim</span>
+            <h2 className="ap-h2">Birlikte Bir Şeyler İnşa Edelim</h2>
+            <p className="ap-lead">Yeni bir proje, iş birliği ya da sadece merhaba demek için ulaşabilirsin.</p>
+            <div className="ap-contact-links">
+              <a className="ap-contact-link" href="mailto:fatihsuna5663@gmail.com"><Mail size={16} /> fatihsuna5663@gmail.com</a>
+              <a className="ap-contact-link" href="https://linkedin.com/in/fatih-s-a89495209" target="_blank" rel="noreferrer"><Linkedin size={16} /> LinkedIn</a>
+              <a className="ap-contact-link" href="https://github.com/Fatih17-s" target="_blank" rel="noreferrer"><Github size={16} /> GitHub</a>
+            </div>
+          </div>
+        </Reveal>
+      </section>
+
+      <footer className="ap-footer">
+        <span>© 2026 Mehmet Fatih Suna — Şanlıurfa</span>
+        <span>Bilgisayar Mühendisliği · İskenderun Teknik Üniversitesi</span>
+      </footer>
     </div>
   );
 }
